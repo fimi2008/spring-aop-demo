@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/aop 
+           http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+	<!-- 把dao层和service层的bean放入到spring容器中,把切面放入到spring容器中 -->
+	<bean id="personDao" class="com.shine.spring.aop.xml.dao.impl.PersonDaoImpl"></bean>
+	<bean id="personService" class="com.shine.spring.aop.xml.service.impl.PersonServiceImpl">
+		<property name="personDao">
+			<ref bean="personDao" />
+		</property>
+	</bean>
+	<bean id="studentDao" class="com.shine.spring.aop.xml.dao.impl.StudentDaoImpl"></bean>
+	<bean id="studentService"
+		class="com.shine.spring.aop.xml.service.impl.StudentServiceImpl">
+		<property name="studentDao">
+			<ref bean="studentDao" />
+		</property>
+	</bean>
+	<bean id="personAction" class="com.shine.spring.aop.xml.action.PersonAction">
+		<property name="personService">
+			<ref bean="personService" />
+		</property>
+	</bean>
+	<bean id="studentAction" class="com.shine.spring.aop.xml.action.StudentAction">
+		<property name="studentService">
+			<ref bean="studentService" />
+		</property>
+	</bean>
+
+
+	<bean id="countAspect" class="com.shine.spring.aop.xml.aspect.CountAspect"></bean>
+	<bean id="runningTimeAspect" class="com.shine.spring.aop.xml.aspect.RunningTimeAspect"></bean>
+
+	<aop:config>
+		<aop:pointcut expression="execution(* com.shine.spring.aop.xml.action.*.* (..))"
+			id="perform_action" />
+
+		<!-- 
+			查找xml下子包的所有类和方法
+		-->
+		<aop:pointcut expression="execution(* com.shine.spring.aop.xml..*.* (..))"
+			id="perform" />
+
+		<!-- action,service,dao层下方法调用次数统计切面 -->
+		<aop:aspect ref="countAspect">
+			<!-- 前置通知 -->
+			<aop:before method="countAdvice" pointcut-ref="perform" />
+		</aop:aspect>
+
+		<!-- action层下方法运行时间记录切面 -->
+		<aop:aspect ref="runningTimeAspect">
+			<aop:around method="runningAdrvice" pointcut-ref="perform_action" />
+		</aop:aspect>
+
+	</aop:config>
+
+</beans>
