@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/aop 
+           http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+	<!--目标类 -->
+	<bean id="personDao" class="com.shine.spring.aop.xml.PersonDaoImpl"></bean>
+	<!-- 切面类 -->
+	<bean id="transaction" class="com.shine.spring.aop.xml.Transaction"></bean>
+
+	<aop:config>
+		<!-- 
+	   		切入点表达式
+	   		 符合切入点表达式的类要产生代理对象
+	   		 expression就是切入点表达式
+	   		 id 标示符
+	    -->
+		<aop:pointcut expression="execution(* com.shine.spring.aop.xml.PersonDaoImpl.* (..))" id="perform"/>
+		<!-- 事务切面通知配置 -->
+		<aop:aspect ref="transaction">
+			<!-- 前置通知
+					1.在目标方法执行之前执行
+					2.前置通知中,方法有一个参数JoinPoint
+			 -->
+			<!-- <aop:before method="beginTransaction" pointcut-ref="perform"/> -->
+			<!-- 后置通知 
+					1.在目标方法执行之后
+					2.能够获取目标方法的返回值 returning="val" 注意:要和切面方法中参数名对应一致
+					3.如果目标方法产生异常,则后置通知不在执行
+			-->
+			<!-- <aop:after-returning method="commit" pointcut-ref="perform" returning="val"/> -->
+			<!-- 异常通知
+					获取目标方法抛出的异常信息
+					throwing="ex" 注意:要和切面方法中参数名对应一致(Throwable ex)
+			 -->
+			<aop:after-throwing method="rollback" pointcut-ref="perform" throwing="ex"/>
+			<!-- 最终通知 -->
+			<aop:after method="finallyAdrive" pointcut-ref="perform"/>
+			<!-- 环绕通知 
+					能够控制目标方法的执行
+					环绕通知可以有返回值,这个返回值就是代理对象的方法的返回值
+					前置通知和后置通知只能在目标方法执行之前和之后加代码,但是不能控制目标方法的执行
+			-->
+			<aop:around method="aroundAdrive" pointcut-ref="perform"/>
+		</aop:aspect>
+	</aop:config>
+
+</beans>
