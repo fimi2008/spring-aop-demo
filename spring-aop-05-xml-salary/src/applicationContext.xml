@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/aop 
+           http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+	<bean id="salaryManager" class="com.shine.spring.aop.xml.salary.SalaryManagerImpl"></bean>
+	<!-- 切面 -->
+	<bean id="logger" class="com.shine.spring.aop.xml.salary.Logger"></bean>
+	<bean id="security" class="com.shine.spring.aop.xml.salary.Security"></bean>
+	<!-- 配置一个环绕通知  -->
+	<bean id="privilege" class="com.shine.spring.aop.xml.salary.Privilege"></bean>
+
+	<!-- aop 配置 -->
+	<aop:config>
+		<aop:pointcut expression="execution(* com.shine.spring.aop.xml.salary.SalaryManagerImpl.*(..))" id="perform"/>
+		<aop:aspect ref="logger">
+			<aop:before method="logging" pointcut-ref="perform"/>
+		</aop:aspect>
+		<aop:aspect ref="security">
+			<aop:before method="start" pointcut-ref="perform"/>
+		</aop:aspect>
+		<aop:aspect ref="privilege">
+			<aop:around method="access" pointcut-ref="perform"/>
+		</aop:aspect>
+	</aop:config>
+</beans>
